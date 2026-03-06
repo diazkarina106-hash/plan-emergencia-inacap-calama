@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plan de Emergencia | INACAP Calama</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon.png">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="dot" aria-hidden="true"></div>
+      <div>
+        <div class="title">Plan de Emergencia</div>
+        <div class="subtitle">INACAP Calama (QR)</div>
+      </div>
+    </div>
+    <button class="ghost infoBtn" id="btnInfo" type="button" aria-label="Ver instrucciones">ℹ️</button>
+  </header>
+
+  <div class="alertBar" id="alertBar" hidden>
+    <div class="alertInner">
+      <div class="alertTitle" id="alertTitle">🚨 Alerta</div>
+      <div class="alertMsg" id="alertMsg"></div>
+    </div>
+    <button class="ghost" id="btnAlertClose" type="button" aria-label="Cerrar alerta">✖</button>
+  </div>
+
+  <main class="container">
+    <section class="card emergencyTop">
+      <button class="primary big" id="btnEmergencia" type="button">🚨 EMERGENCIA – ¿QUÉ ESTÁ OCURRIENDO?</button>
+      <p class="muted small">Toca el botón para ir al panel de emergencias (instrucciones rápidas por tipo).</p>
+    </section>
+<section class="card">
+      <h1>¿Dónde estás?</h1>
+      <div class="lastLoc" id="lastLocation" hidden></div>
+      <p class="muted">Selecciona tu sede/subsede para ver el <b>plano de evacuación</b> correspondiente.</p>
+      <p class="muted small">Selecciona tu ubicación para ver el plano de evacuación más cercano.</p>
+
+      <div class="grid">
+        <label class="field">
+          <span>Sede / Subsede</span>
+          <select id="siteSelect">
+            <option value="sede_principal">Sede Principal (Av. Granaderos 3.250)</option>
+            <option value="subsede_logistica_prevencion">Subsede Logística y Prevención (Argentina 3.392)</option>
+            <option value="subsede_mantenimiento_plantas_mineras">Subsede Mant. Plantas Mineras (Granaderos 3.479)</option>
+            <option value="subsede_maquinaria_pesada">Subsede Maquinaria Pesada (Granaderos 3.685)</option>
+            <option value="centro_de_negocios">Centro de Negocios (Granaderos 3.005)</option>
+          </select>
+        </label>
+
+        <label class="field" id="floorWrap">
+          <span>Piso (solo Sede Principal)</span>
+          <select id="floorSelect">
+            <option value="subterraneo">Subterráneo</option>
+            <option value="piso1" selected>Piso 1</option>
+            <option value="piso2">Piso 2</option>
+            <option value="piso3">Piso 3</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="btnMiPlano" type="button">📍 Ver mi plano</button>
+        <button class="secondary" id="btnPlano" type="button">Ver plano</button>
+        <button class="secondary" id="btnMapa" type="button">Ver mapa de ubicaciones</button>
+      </div>
+
+      <div class="muted small" style="margin-top:10px;">Sigue siempre la <b>señalética verde</b> de evacuación.</div>
+      <div class="hint">Consejo: guarda esta pantalla en tu inicio (Android/iPhone) para usarla como app.</div>
+    </section>
+
+    <section class="card">
+      <h2>Evacuación (pasos clave)</h2>
+      <ol class="steps">
+        <li><b>Mantén serenidad</b> y sigue instrucciones de monitores/docentes.</li>
+        <li><b>Evacúa por las vías</b> señalizadas y <b>no te devuelvas</b>.</li>
+        <li>Camina <b>en fila india</b>, en silencio y sin correr; usa pasamanos en escaleras.</li>
+        <li>En el punto de reunión, <b>permanece</b> hasta que se levante la emergencia.</li>
+      </ol>
+    </section>
+
+    <section class="card" id="emSection">
+      <h2>¿Qué emergencia es?</h2>
+      <p class="muted">Toca un ícono para ver cómo actuar (resumen).</p>
+      <div class="emGrid" id="emGrid"></div>
+      <p class="muted small">Si no estás en tu sala/área habitual, intégrate a la evacuación del sector en que te encuentras.</p>
+    </section>
+
+    <section class="card">
+      <h2>🎓 Modo Simulacro</h2>
+      <p class="muted">Úsalo en capacitaciones para practicar el paso a paso de evacuación.</p>
+      <button class="secondary" id="btnSimulacro" type="button">Iniciar simulacro</button>
+    </section>
+
+    <section class="card">
+      <h2>🗺 Mapa general de la sede</h2>
+      <p class="muted">Ubica la sede y subsedes en el mapa general.</p>
+      <button class="secondary" id="btnMapaGeneral" type="button">Ver mapa completo</button>
+    </section>
+
+    <section class="card">
+      <h2>📣 Reportar una emergencia</h2>
+      <p class="muted">Si detectas una situación de riesgo, repórtala aquí para que el equipo de la sede la gestione.</p>
+      <div class="muted small"><b>Emergencia real:</b> Si hay riesgo vital, avisa a personal y llama a <b>SAMU 131</b>.</div>
+
+      <form id="reportForm" name="reporte-emergencia" method="POST" data-netlify="true" enctype="multipart/form-data">
+        <input type="hidden" name="form-name" value="reporte-emergencia" />
+        <label class="field">
+          <span>Tipo de emergencia</span>
+          <select name="tipo" id="reportTipo" required>
+            <option value="">Selecciona…</option>
+            <option>Incendio</option>
+            <option>Sismo / Terremoto</option>
+            <option>Fuga de gas</option>
+            <option>Emergencia eléctrica</option>
+            <option>Amenaza de bomba</option>
+            <option>Emergencia médica</option>
+            <option>Balacera / violencia externa</option>
+            <option>Otra</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Ubicación</span>
+          <input class="input" type="text" name="ubicacion" id="reportUbicacion" placeholder="Ej: Sede Principal – Piso 2" required />
+        </label>
+        <label class="field">
+          <span>Detalle (breve)</span>
+          <textarea class="input" name="detalle" rows="4" placeholder="¿Qué está pasando? ¿Hay humo, heridos, riesgo inmediato, etc.?" required></textarea>
+        </label>
+        <label class="field">
+          <span>Foto (opcional)</span>
+          <input class="input" type="file" name="foto" accept="image/*" />
+        </label>
+        <div class="actions"><button class="primary" type="submit">Enviar reporte</button></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>✅ Confirmar zona segura</h2>
+      <p class="muted">Durante una evacuación, confirma cuando llegues a zona segura / punto de encuentro.</p>
+
+      <form id="safeForm" name="confirmacion-zona-segura" method="POST" data-netlify="true">
+        <input type="hidden" name="form-name" value="confirmacion-zona-segura" />
+        <label class="field">
+          <span>Ubicación</span>
+          <input class="input" type="text" name="ubicacion" id="safeUbicacion" placeholder="Ej: Punto de encuentro – exterior" required />
+        </label>
+        <label class="field">
+          <span>¿Cómo estás?</span>
+          <select name="estado" required>
+            <option>Estoy en zona segura</option>
+            <option>Necesito ayuda</option>
+            <option>Estoy con mi curso</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Comentario (opcional)</span>
+          <input class="input" type="text" name="comentario" placeholder="Ej: Estoy con 3 compañeros / Falta alguien / etc." />
+        </label>
+        <div class="actions"><button class="primary" type="submit">Confirmar</button></div>
+      </form>
+    </section>
+
+    <section class="card viewer" id="viewer" hidden>
+      <div class="viewerHeader">
+        <div>
+          <div class="viewerTitle" id="viewerTitle">Detalle</div>
+          <div class="muted small" id="viewerSubtitle"></div>
+        </div>
+        <div class="viewerBtns"><button class="ghost" id="btnClose" type="button">Cerrar</button></div>
+      </div>
+      <div class="contentWrap" id="contentWrap"></div>
+      <div class="viewerFooter" id="viewerFooter" hidden>
+        <button class="secondary" id="btnZoomIn" type="button">➕ Zoom</button>
+        <button class="secondary" id="btnZoomOut" type="button">➖ Zoom</button>
+        <a class="secondary linkBtn" id="btnOpenImg" href="#" target="_blank" rel="noopener">Abrir imagen</a>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="infoDialog">
+    <div class="dialogHead">
+      <h3>Instrucciones rápidas</h3>
+      <button class="ghost" id="btnInfoClose" type="button">✖</button>
+    </div>
+    <ul class="bullets">
+      <li>La <b>bocina de alarma</b> avisa evacuación; monitores refuerzan con megáfono o a viva voz.</li>
+      <li>Evacúa sin correr: <b>fila india</b>, en silencio, usando pasamanos.</li>
+      <li><b>No te devuelvas</b> y espera instrucciones en el punto de reunión.</li>
+      <li>Si alguien necesita ayuda para desplazarse, avisa a monitores/seguridad.</li>
+    </ul>
+    <div class="dialogFoot"><button class="primary" id="btnOk" type="button">Entendido</button></div>
+  </dialog>
+
+  <div class="modal" id="adminModal" hidden aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <div class="modalHead">
+        <div>
+          <div class="modalTitle" id="adminTitle">Panel de Emergencia</div>
+          <div class="muted small">Uso exclusivo: Prevención / Jefatura / Encargados autorizados.</div>
+        </div>
+        <button class="ghost" id="btnAdminClose" type="button" aria-label="Cerrar">✖</button>
+      </div>
+      <div class="field">
+        <span>Contraseña</span>
+        <input class="input" id="adminPass" type="password" placeholder="Ingresa contraseña" />
+        <div class="muted small">Clave actual: <b>Inacal</b>. Se puede cambiar después (recomendado: variable en Netlify).</div>
+      </div>
+      <div class="field">
+        <span>Título de alerta</span>
+        <input class="input" id="adminTitleInput" type="text" placeholder="Ej: EVACUACIÓN PREVENTIVA" />
+      </div>
+      <div class="field">
+        <span>Mensaje</span>
+        <textarea class="input" id="adminMsgInput" rows="4" placeholder="Ej: Dirígete por las vías señalizadas al punto de encuentro y sigue instrucciones del personal."></textarea>
+      </div>
+      <div class="actions">
+        <button class="primary" id="btnAdminActivate" type="button">🔴 Activar alerta</button>
+        <button class="secondary" id="btnAdminDeactivate" type="button">🟢 Finalizar emergencia</button>
+      </div>
+      <div class="muted small" id="adminStatus" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+
+  <div class="toastOverlay" id="toastOverlay" hidden>
+    <div class="toastCard" role="dialog" aria-modal="true" aria-labelledby="toastTitle">
+      <div class="toastHead">
+        <div>
+          <div class="toastTitle" id="toastTitle">Detalle</div>
+          <div class="muted small" id="toastSubtitle"></div>
+        </div>
+        <button class="ghost" id="btnToastClose" type="button" aria-label="Cerrar">✖</button>
+      </div>
+      <div class="toastBody" id="toastBody"></div>
+    </div>
+  </div>
+
+  <div class="realEmergencyOverlay" id="realEmergencyOverlay" hidden>
+    <div class="realEmergencyCard">
+      <div class="realEmergencyTop">
+        <div class="realEmergencyBadge">🚨 EMERGENCIA ACTIVA</div>
+        <div class="realEmergencyLocation" id="realEmergencyLocation"></div>
+      </div>
+      <h2 class="realEmergencyType" id="realEmergencyType">Emergencia</h2>
+      <p class="realEmergencyMessage" id="realEmergencyMessage"></p>
+      <div class="realEmergencyButtons">
+        <button class="primary" id="btnStudentReport" type="button">🚨 Reportar emergencia</button>
+        <button class="secondary" id="btnStudentSafe" type="button">✅ Estoy en zona segura</button>
+        <button class="secondary" id="btnStudentHelp" type="button">🆘 Necesito ayuda</button>
+      </div>
+      <div class="muted small realEmergencyNote">Si hay riesgo vital, avisa a personal de la sede y llama a SAMU 131.</div>
+    </div>
+  </div>
+
+  <div class="modal" id="coordinatorLoginModal" hidden aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="coordLoginTitle">
+      <div class="modalHead">
+        <div>
+          <div class="modalTitle" id="coordLoginTitle">Acceso Coordinador</div>
+          <div class="muted small">Uso exclusivo: Prevención de Riesgos, Jefe de Emergencia, Encargado de Emergencia y Vicerrector.</div>
+        </div>
+        <button class="ghost" id="btnCoordLoginClose" type="button" aria-label="Cerrar">✖</button>
+      </div>
+      <div class="field">
+        <span>Usuario</span>
+        <select id="coordUser" class="input">
+          <option value="">Selecciona…</option>
+          <option value="prevencion">Prevención de Riesgos</option>
+          <option value="jefe_emergencia">Jefe de Emergencia</option>
+          <option value="encargado_emergencia">Encargado de Emergencia</option>
+          <option value="vicerrector">Vicerrector</option>
+        </select>
+      </div>
+      <div class="field">
+        <span>Contraseña</span>
+        <input class="input" id="coordPass" type="password" placeholder="Ingresa contraseña" />
+        <div class="muted small">Clave actual: <b>Inacal</b>. En una siguiente etapa se puede reemplazar por un acceso más robusto.</div>
+      </div>
+      <div class="actions"><button class="primary" id="btnCoordLogin" type="button">Ingresar</button></div>
+      <div class="muted small" id="coordLoginStatus" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="coordinatorPanelModal" hidden aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="coordPanelTitle">
+      <div class="modalHead">
+        <div>
+          <div class="modalTitle" id="coordPanelTitle">Panel Coordinador de Emergencia</div>
+          <div class="muted small">Esta v1 activa la emergencia en este dispositivo / navegador. En una siguiente etapa se puede sincronizar en tiempo real.</div>
+        </div>
+        <button class="ghost" id="btnCoordPanelClose" type="button" aria-label="Cerrar">✖</button>
+      </div>
+      <div class="field">
+        <span>Tipo de emergencia</span>
+        <select id="coordEmergencyType" class="input">
+          <option value="Incendio">Incendio</option>
+          <option value="Sismo / terremoto">Sismo / terremoto</option>
+          <option value="Fuga de gas">Fuga de gas</option>
+          <option value="Emergencia eléctrica">Emergencia eléctrica</option>
+          <option value="Amenaza de bomba">Amenaza de bomba</option>
+          <option value="Emergencia médica">Emergencia médica</option>
+          <option value="Balacera / violencia externa">Balacera / violencia externa</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <label class="field" id="coordOtherWrap" hidden>
+        <span>Nombre de la emergencia</span>
+        <input class="input" id="coordEmergencyOther" type="text" placeholder="Ej: Evacuación preventiva / incidente externo" />
+      </label>
+      <div class="field">
+        <span>Ubicación de la emergencia</span>
+        <select id="coordEmergencyLocation" class="input">
+          <option value="Toda la sede">Toda la sede</option>
+          <option value="Edificio principal">Edificio principal</option>
+          <option value="Logística y prevención">Logística y prevención</option>
+          <option value="Mant. plantas mineras">Mant. plantas mineras</option>
+          <option value="Maquinaria pesada">Maquinaria pesada</option>
+          <option value="Centro de negocios">Centro de negocios</option>
+        </select>
+      </div>
+      <div class="field">
+        <span>Mensaje institucional</span>
+        <textarea class="input" id="coordEmergencyMessage" rows="4" placeholder="Ej: Evacuación inmediata. Dirígete a zona segura y sigue instrucciones del personal."></textarea>
+      </div>
+      <div class="actions">
+        <button class="primary" id="btnActivateEmergency" type="button">🔴 Activar emergencia</button>
+        <button class="secondary" id="btnFinishEmergency" type="button">🟢 Finalizar emergencia</button>
+      </div>
+      <div class="muted small" id="coordPanelStatus" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+</body>
+</html>
