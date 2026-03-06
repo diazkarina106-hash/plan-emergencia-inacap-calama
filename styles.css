@@ -306,3 +306,5 @@ textarea.input{resize:vertical}
 .modalCard *{ pointer-events:auto; }
 
 .modalCard button{cursor:pointer;}
+
+.modal[hidden]{display:none !important;}

@@ -1,4 +1,4 @@
-const CACHE = 'pe-inacap-calama-v71';
+const CACHE = 'pe-inacap-calama-v73';
 const ASSETS = [
   './',
   './index.html',

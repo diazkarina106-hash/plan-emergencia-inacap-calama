@@ -427,7 +427,8 @@ function hookForm(formId, successMsg){
 hookForm('reportForm', '✅ Reporte enviado. Gracias. Emergencia real: si hay riesgo vital, avisa a personal y llama a SAMU 131.');
 hookForm('safeForm', '✅ Confirmación registrada. Gracias.');
 
-// --- v7 Panel Admin (mantén presionado el encabezado 5s) ---
+
+// --- v7.2 Panel Admin (oculto): 5 toques rápidos en ℹ️ ---
 const adminModal = document.getElementById('adminModal');
 const btnAdminClose = document.getElementById('btnAdminClose');
 const btnAdminActivate = document.getElementById('btnAdminActivate');
@@ -449,22 +450,24 @@ function closeAdmin(){
 }
 btnAdminClose?.addEventListener('click', closeAdmin);
 adminModal?.addEventListener('click', (e)=>{ if(e.target === adminModal) closeAdmin(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeAdmin(); });
 
-let pressTimer = null;
-const headerEl = document.querySelector('header');
-if(headerEl){ headerEl.addEventListener('contextmenu', (e)=>e.preventDefault()); }
 
-if(headerEl){
-  headerEl.addEventListener('touchstart', ()=>{
-    pressTimer = setTimeout(openAdmin, 5000);
-  }, {passive:true});
-  headerEl.addEventListener('touchend', ()=>{ if(pressTimer) clearTimeout(pressTimer); }, {passive:true});
-  headerEl.addEventListener('touchmove', ()=>{ if(pressTimer) clearTimeout(pressTimer); }, {passive:true});
-  headerEl.addEventListener('mousedown', ()=>{
-    pressTimer = setTimeout(openAdmin, 5000);
+// Gesto oculto: 5 taps en 3 segundos sobre el botón ℹ️
+let tapCount = 0;
+let tapTimer = null;
+const btnInfo = document.getElementById('btnInfo');
+if(btnInfo){
+  btnInfo.addEventListener('click', ()=>{
+    tapCount += 1;
+    if(tapTimer) clearTimeout(tapTimer);
+    tapTimer = setTimeout(()=>{ tapCount = 0; }, 3000);
+
+    if(tapCount >= 5){
+      tapCount = 0;
+      openAdmin();
+    }
   });
-  headerEl.addEventListener('mouseup', ()=>{ if(pressTimer) clearTimeout(pressTimer); });
-  headerEl.addEventListener('mouseleave', ()=>{ if(pressTimer) clearTimeout(pressTimer); });
 }
 
 async function setAlert(active){
@@ -508,3 +511,4 @@ async function setAlert(active){
 
 btnAdminActivate?.addEventListener('click', ()=>setAlert(true));
 btnAdminDeactivate?.addEventListener('click', ()=>setAlert(false));
+
